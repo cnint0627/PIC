@@ -1,0 +1,30 @@
+#use "lib/readfile.c0"
+#use "lib/stringsearch.c0"
+#use "duplicates.c0"
+
+int count_vocab(string[] vocab,int[] freq,int v,string tweetfile,bool fast)
+//@requires v==\length(vocab) && v==\length(freq);
+//@requires is_sorted(vocab,0,v) && all_distinct(vocab,v);
+//@ensures 0<=\result && \result<= string_bundle_length(read_words(tweetfile));
+{
+    string_bundle bundle=read_words(tweetfile);
+    int bundle_length=string_bundle_length(bundle);
+    string[] bundle_array=string_bundle_array(bundle);
+    int count=0;
+    for(int i=0;i<bundle_length;i++)
+    //@loop_invariant 0<=i && i<=bundle_length;
+    {
+        int index;
+        if(fast){
+            index=binsearch(bundle_array[i],vocab,v);
+        }else{
+            index=linsearch(bundle_array[i],vocab,v);
+        }
+        if(index==-1){
+            count++;
+        }else{
+            freq[index]++;
+        }
+    }
+    return count;
+}

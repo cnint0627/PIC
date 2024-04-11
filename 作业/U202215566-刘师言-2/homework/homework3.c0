@@ -1,0 +1,64 @@
+#use <string>
+int quot(int x, int y)
+//@requires y != 0;
+{
+    int sign = x ^ y;
+    int res = 0;
+    x = x < 0 ? (~x) + 1 : x;
+    y = y < 0 ? (~y) + 1 : y;
+    int i = 31;
+    while(i >= 0){
+        if((x >> i) >= y){
+            res += (1 << i);
+            x -= (y << i);
+        }
+        i -= 1;
+    }
+    if(sign < 0){
+        res = ~res + 1;
+    }
+    return res;
+}
+
+int rem(int x, int y){
+    return x - quot(x, y) * y;
+}
+
+string int2hex(int x)
+//@requires x >= 0 && x <= (1 << 31) - 1;
+{
+    char[] A = alloc_array(char, 16);
+    char[] s = alloc_array(char, 11);
+    for(int k = 0; k < 11; k++)
+	s[k] = '0';
+    A[0] = '0'; A[1] = '1'; A[2] = '2'; A[3] = '3'; A[4] = '4';
+    A[5] = '5'; A[6] = '6'; A[7] = '7'; A[8] = '8'; A[9] = '9';
+    A[10] = 'A'; A[11] = 'B'; A[12] = 'C'; A[13] = 'D'; A[14] = 'E';
+    A[15] = 'F';
+    s[0] = '0'; s[1] = 'X';
+    int t = x;
+    int i = 2;
+    while(t > 0){
+        s[i] = A[rem(t, 16)];
+        t = quot(t, 16);
+        i += 1;
+    }
+    int l = 2;
+    int r = 9;
+    char tmp;
+    while(l < r){
+        tmp = s[l];
+        s[l] = s[r];
+	s[r] = tmp;
+	l += 1;
+	r -= 1;
+    }
+    s[10] = '\0';
+    string str = string_from_chararray(s);
+    return str;
+}
+
+
+int lsr(int x,int n){
+    return (x >> n) & (~(~0 << (32 - n)));
+}

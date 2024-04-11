@@ -1,0 +1,178 @@
+/*
+ * Clac, stack-based calculator language
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <string>
+#use <parse>
+#use <conio>
+#use <args>
+#use <util>
+
+/* check if stack is empty */
+void check(stack S) {
+  if (stack_empty(S)) {
+    /* stack is empty */
+    error("Stack is too short to opearte");
+  }
+}
+
+/* Return true: clac top-level interpreter will expect more input */
+/* Return false: clac top-level interpreter will exit */
+bool eval(queue Q, stack S)
+//@ensures \result == false || queue_empty(Q);
+{
+  int skip = 0;
+  while (!queue_empty(Q)) {
+    string tok = deq(Q); /* is this dequeue safe? */
+    // print("Read: "); print(tok); print("\n");
+    if (skip > 0) {
+      /* skip n times */
+      skip--;
+    }else {
+      if (string_equal(tok, "print")) {
+
+        /* next line is unsafe and should be fixed */
+        check(S);
+        int x = pop(S);
+        printint(x); print("\n");
+      } else if (string_equal(tok, "quit")) {
+        return false;             /* do not continue */
+      } else if (string_equal(tok, "+")) {
+        check(S);
+        int y = pop(S);
+        check(S);
+        int x = pop(S);
+        push(S, x+y);
+      } else if (string_equal(tok, "-")) { 
+        check(S);
+        int y = pop(S);
+        check(S);
+        int x = pop(S);
+        push(S, x-y);
+      } else if (string_equal(tok, "*")) {
+        check(S);
+        int y = pop(S);
+        check(S);
+        int x = pop(S);
+        push(S, x*y);
+      } else if (string_equal(tok, "/")) {
+        check(S);
+        int y = pop(S);
+        check(S);
+        int x = pop(S);
+        if (y == 0) {
+          error("Division by zero");
+        }else if (x == int_min() && y == -1) {
+          error("Overflow");
+        }else{
+          push(S, x/y);
+        } 
+      } else if (string_equal(tok, "%%")) {
+        check(S);
+        int y = pop(S);
+        check(S);
+        int x = pop(S);
+        if (y == 0) {
+          error("Division by zero");
+        }else if (x == int_min() && y == -1) {
+          error("Overflow");
+        }else {
+          push(S, x%y);
+        }
+      } else if (string_equal(tok, "<")) {
+        check(S);
+        int y = pop(S);
+        check(S);
+        int x = pop(S);
+        if (x < y) {
+          push(S, 1);
+        }else {
+          push(S, 0);
+        }
+      } else if (string_equal(tok, "drop")) {
+        check(S);
+        pop(S);
+      } else if (string_equal(tok, "dup")) {
+        check(S);
+        int x = pop(S);
+        push(S, x);
+        push(S, x);
+      } else if (string_equal(tok, "swap")) {
+        check(S);
+        int y = pop(S);
+        check(S);
+        int x = pop(S);
+        push(S, y);
+        push(S, x);
+      } else if (string_equal(tok, "rot")) {
+        check(S);
+        int z = pop(S);
+        check(S);
+        int y = pop(S);
+        check(S);
+        int x = pop(S);
+        push(S, z);
+        push(S, y);
+        push(S, x);
+      } else if (string_equal(tok, "skip")) {
+        check(S);
+        int x = pop(S);
+        if (x < 0) {
+          error("n must be not negative");
+        }
+        skip = x;
+      } else if (string_equal(tok, "if")) {
+        check(S);
+        int x = pop(S);
+        if (x == 0) {
+          skip = 2;
+        }
+      } else if (string_equal(tok, "else")) {
+        skip = 1;
+      } else if (string_equal(tok, "pick")) {
+        check(S);
+        int x = pop(S);
+        if (x <= 0) {
+          error("n must be positive");
+        }
+        stack new = stack_new();
+        for (int i = 0; i < x - 1; i++) {
+          check(S);
+          int j = pop(S);
+          push(new, j);
+        } 
+        check(S);
+        int y = pop(S);
+        push(new, y);
+        for (int i = 0;i < x - 1; i++) {
+          int j = pop(new);
+          push(S, j);
+        }
+        push(S ,y);
+      }else if (string_equal(tok, "copy")) {
+        stack new = stack_new();
+        while (!stack_empty(S)) {
+          int x = pop(S);
+          push(new, x);
+          push(new, x);
+        }
+        while (!stack_empty(new)) {
+          int x = pop(new);
+          push(S, x);
+        }
+      }
+      else {
+        /* not defined as an operation name, should be an int */
+        int* p = parse_int(tok, 10);
+        if (p == NULL) { /* not an int */
+          /* call error(msg) which prints msg and aborts */
+          error(string_join("undefined token ", tok));
+        }
+        push(S, *p);
+      }
+    }
+  }
+  return true;                  /* continue */
+}

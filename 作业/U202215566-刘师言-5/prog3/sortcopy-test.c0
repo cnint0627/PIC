@@ -1,0 +1,16 @@
+#use "lib/arrayutil.c0"
+
+int main(){
+    string[] test=alloc_array(string,3);
+    test[0]="B";test[1]="A";test[2]="C";
+    string[] test_sort=sortcopy(test,0,3);
+    //@assert \length(test_sort)==3;
+    //@assert is_in(test[0],test_sort,0,3);
+    //@assert is_sorted(test_sort,0,3);
+    for(int i=0;i<3;i++)
+    //@loop_invariant 0<=i && i<=3;
+    {
+        //@assert is_in(test[i],test_sort,0,3);
+    }
+    return 0;
+}

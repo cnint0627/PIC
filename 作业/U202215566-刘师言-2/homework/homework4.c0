@@ -1,0 +1,32 @@
+int[] array_part(int[] A, int i, int j)
+//@requires i >= 0 && i <= j;
+//@ensures \length(\result) == j - i + 1;
+{
+    int n = j - i + 1;
+    int[] B = alloc_array(int, n);
+    int a;
+    int b = 0;
+    for(a = i - 1; a <= j - 1;)
+    //@loop_invariant b <= n;
+    {
+        B[b] = A[a];
+	a++;
+	b++;
+    }
+    return B;
+}
+
+int copy_into(int[] source, int i, int n, int[] target, int j)
+//@requires \length(source) >= i + n && j + n <= \length(target);
+{
+    int t = 0;
+    for(; t < n; t++)
+    //@loop_invariant t >= 0;
+    {
+	target[j + t - 1] = source[i + t - 1];
+    }
+    return j + t - 1;
+}
+
+// return length of an array
+int f(int[] A);

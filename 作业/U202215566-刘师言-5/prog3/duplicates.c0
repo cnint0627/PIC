@@ -1,0 +1,64 @@
+#use <string>
+#use "lib/arrayutil.c0"
+bool all_distinct(string[] A,int n)
+//@requires 0<=n && n<=\length(A);
+//@requires is_sorted(A,0,n);
+//@ensures \result || !\result;
+{
+    if(n==0){
+        return true;
+    }
+    for(int i=1;i<n;i++)
+    //@loop_invariant 1<=i && i<=n;
+    {
+        if(string_equal(A[i],A[i-1])){
+	    return false;
+	}
+    }
+    return true;
+}
+
+int count_distinct(string[] A,int n)
+//@requires 0<=n && n<=\length(A);
+//@requires is_sorted(A,0,n);
+//@ensures 0<=\result && \result<=n;
+{
+    if(n==0){
+        return 0;
+    }
+    int count=1;
+    for(int i=1;i<n;i++)
+    //@loop_invariant 1<=i && i<=n;
+    {
+        if(!string_equal(A[i],A[i-1])){
+            count++;
+        }
+    }
+    return count;
+}
+
+string[] remove_duplicates(string[] A,int n)
+//@requires 0<=n && n<=\length(A);
+//@requires is_sorted(A,0,n);
+//@ensures is_sorted(\result,0,\length(\result));
+//@ensures all_distinct(\result,\length(\result));
+//@ensures count_distinct(\result,\length(\result))==\length(\result);
+{
+    int count=count_distinct(A,n);
+    string[] B=alloc_array(string,count);
+    if(n==0){
+        return B;
+    }
+    B[0]=A[0];
+    int j=0;
+    for(int i=1;i<n;i++)
+    //@loop_invariant 1<=i && i<=n;
+    //@loop_invariant j<count;
+    {
+        if(!string_equal(A[i],A[i-1])){
+            j++;
+            B[j]=A[i];
+	}
+    }
+    return B;
+}    
